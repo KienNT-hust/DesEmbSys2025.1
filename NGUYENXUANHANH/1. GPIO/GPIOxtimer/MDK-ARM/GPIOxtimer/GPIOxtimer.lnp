@@ -1,0 +1,23 @@
+--cpu Cortex-M3
+"gpioxtimer\startup_stm32f103xb.o"
+"gpioxtimer\main.o"
+"gpioxtimer\stm32f1xx_it.o"
+"gpioxtimer\stm32f1xx_hal_msp.o"
+"gpioxtimer\stm32f1xx_hal_gpio_ex.o"
+"gpioxtimer\stm32f1xx_hal_tim.o"
+"gpioxtimer\stm32f1xx_hal_tim_ex.o"
+"gpioxtimer\stm32f1xx_hal.o"
+"gpioxtimer\stm32f1xx_hal_rcc.o"
+"gpioxtimer\stm32f1xx_hal_rcc_ex.o"
+"gpioxtimer\stm32f1xx_hal_gpio.o"
+"gpioxtimer\stm32f1xx_hal_dma.o"
+"gpioxtimer\stm32f1xx_hal_cortex.o"
+"gpioxtimer\stm32f1xx_hal_pwr.o"
+"gpioxtimer\stm32f1xx_hal_flash.o"
+"gpioxtimer\stm32f1xx_hal_flash_ex.o"
+"gpioxtimer\stm32f1xx_hal_exti.o"
+"gpioxtimer\system_stm32f1xx.o"
+--strict --scatter "GPIOxtimer\GPIOxtimer.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "GPIOxtimer.map" -o GPIOxtimer\GPIOxtimer.axf
