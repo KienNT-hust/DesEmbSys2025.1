@@ -1,0 +1,15 @@
+# PlatformIO
+.pio/
+
+# Arduino build cache
+*.bin
+*.elf
+*.hex
+
+# VSCode
+.vscode/
+
+# Node / web (nếu có)
+node_modules/
+dist/
+build/
