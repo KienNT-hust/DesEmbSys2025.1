@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../server"
+		},
+		{
+			"name": "client_ESP32",
+			"path": ".."
+		},
+		{
+			"name": "ESP32_Relay",
+			"path": "../../../../ESP32_Relay/ESP32_Relay"
+		}
+	],
+	"settings": {}
+}

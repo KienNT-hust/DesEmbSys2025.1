@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IoT Dashboard - Vườn 100ha (2 Node)</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    body{
+      background: url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=2200")
+        center/cover no-repeat fixed;
+      min-height: 100vh;
+    }
+    .bg-overlay{ background: linear-gradient(to bottom, rgba(0,0,0,.10), rgba(0,0,0,.18)); min-height: 100vh; }
+    .node-card{ background: rgba(255,255,255,0.92); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.14); overflow: hidden; backdrop-filter: blur(8px); }
+    .value-card{ background: #fff; border-radius: 14px; padding: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .chart-container{ background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .panel{ background: rgba(255,255,255,0.92); border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.14); backdrop-filter: blur(8px); }
+    .chip{ padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+
+<body class="text-gray-900 font-sans antialiased">
+<div class="bg-overlay">
+
+  <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🌾</span>
+        <h1 class="text-2xl font-bold">IoT Dashboard - Vườn 100ha</h1>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="/download-excel"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition">
+          ⬇️ Xuất Báo Cáo Excel
+        </a>
+
+        <span id="serverPill"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800">
+          ● Offline
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-10">
+    <h2 class="text-3xl font-bold text-center mb-6 text-white drop-shadow-lg">Tổng Quan Hệ Thống (2 Node)</h2>
+
+    <!-- ===== Panel demo (CHỈ HIỂN THỊ) ===== -->
+    <section class="panel p-6 mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-extrabold">Mục tiêu nâng cấp (Demo hiển thị)</h3>
+          <p class="text-sm text-gray-600">
+            Giao diện sẽ hiển thị cảnh báo & cấu hình chu kỳ đo theo từng node (định hướng).
+            <b>Hiện tại chưa điều khiển ngược về node.</b>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="chip bg-blue-100 text-blue-800">Label thời gian: 5s</span>
+          <span class="chip bg-gray-100 text-gray-700">Refresh dữ liệu: <span id="refreshTxt">2s</span></span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Cấu hình chu kỳ đo (chỉ hiển thị) -->
+        <div class="p-4 rounded-2xl bg-white shadow">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-extrabold">Chu kỳ đo dự kiến (chỉ hiển thị)</h4>
+            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-700">Future feature</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl border border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="font-bold">Node 1</div>
+                <span class="chip bg-blue-50 text-blue-700">ID=1</span>
+              </div>
+              <div class="mt-3 text-sm text-gray-600">Chu kỳ gửi (ms)</div>
+              <div class="text-3xl font-extrabold text-blue-700"><span id="period1">5000</span></div>
+              <div class="mt-2 text-xs text-gray-500">*demo: hiển thị (chưa gửi lệnh)</div>
+            </div>
+
+            <div class="p-4 rounded-2xl border border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="font-bold">Node 2</div>
+                <span class="chip bg-indigo-50 text-indigo-700">ID=2</span>
+              </div>
+              <div class="mt-3 text-sm text-gray-600">Chu kỳ gửi (ms)</div>
+              <div class="text-3xl font-extrabold text-indigo-700"><span id="period2">6500</span></div>
+              <div class="mt-2 text-xs text-gray-500">*demo: hiển thị (chưa gửi lệnh)</div>
+            </div>
+          </div>
+
+          <div class="mt-4 text-sm text-gray-600">
+            Định hướng: Web cấu hình → Gateway/Relay → Node cập nhật chu kỳ đo.
+          </div>
+        </div>
+
+        <!-- Cảnh báo (chỉ hiển thị) -->
+        <div class="p-4 rounded-2xl bg-white shadow">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-extrabold text-red-700">Cảnh báo (demo hiển thị)</h4>
+            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-red-50 text-red-700">Future feature</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl border border-red-200 bg-red-50/40">
+              <div class="font-bold text-red-800">Ngưỡng nhiệt độ</div>
+              <div class="text-sm text-red-700 mt-1">Tmax = <b><span id="tmax">35</span>°C</b></div>
+              <div class="text-xs text-gray-500 mt-2">Nếu vượt ngưỡng → cảnh báo trên dashboard</div>
+            </div>
+
+            <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50/40">
+              <div class="font-bold text-amber-900">Ngưỡng độ ẩm KK</div>
+              <div class="text-sm text-amber-900 mt-1">
+                Hmin = <b><span id="hmin">30</span>%</b> • Hmax = <b><span id="hmax">95</span>%</b>
+              </div>
+              <div class="text-xs text-gray-500 mt-2">Nếu thấp/cao bất thường → cảnh báo</div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="text-sm font-bold text-gray-800 mb-2">Trạng thái hiện tại (auto theo dữ liệu)</div>
+            <div id="alertStatus" class="text-sm text-gray-600">
+              Chưa phát hiện cảnh báo.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 2 node UI ===== -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Node 1 -->
+      <section class="node-card">
+        <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-white border-b flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-3 w-3 rounded-full bg-blue-600"></span>
+            <h3 class="text-2xl font-bold">Node 1</h3>
+          </div>
+          <span class="text-sm font-semibold px-4 py-1 bg-gray-100 rounded-full">ID = 1</span>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div class="value-card">
+            <p class="text-sm font-semibold text-gray-600 uppercase mb-2">Nhiệt độ</p>
+            <p class="text-4xl font-extrabold text-blue-600"><span id="temp1">--</span>°C</p>
+          </div>
+          <div class="value-card">
+            <p class="text-sm font-semibold text-gray-600 uppercase mb-2">Độ ẩm KK</p>
+            <p class="text-4xl font-extrabold text-emerald-600"><span id="hum1">--</span>%</p>
+          </div>
+          <div class="value-card">
+            <p class="text-sm font-semibold text-gray-600 uppercase mb-2">Độ ẩm đất</p>
+            <p class="text-4xl font-extrabold text-amber-800"><span id="soil1">--</span>%</p>
+          </div>
+        </div>
+
+        <div class="px-6 pb-6">
+          <div class="chart-container">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-xl font-bold">Biểu đồ Realtime</h4>
+              <span class="text-xs font-semibold px-3 py-1 bg-blue-100 text-blue-800 rounded-full">Temp + Hum + Soil</span>
+            </div>
+            <div class="h-80"><canvas id="chartNode1"></canvas></div>
+            <div class="mt-4 text-center text-sm text-gray-600">
+              Cập nhật lần cuối: <span id="lastTime1" class="font-semibold">--:--:--</span>
+              <span id="lastDate1" class="font-semibold">--/--/----</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Node 2 -->
+      <section class="node-card">
+        <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-white border-b flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-3 w-3 rounded-full bg-indigo-600"></span>
+            <h3 class="text-2xl font-bold">Node 2</h3>
+          </div>
+          <span class="text-sm font-semibold px-4 py-1 bg-gray-100 rounded-full">ID = 2</span>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div class="value-card">
+            <p class="text-sm font-semibold text-gray-600 uppercase mb-2">Nhiệt độ</p>
+            <p class="text-4xl font-extrabold text-blue-600"><span id="temp2">--</span>°C</p>
+          </div>
+          <div class="value-card">
+            <p class="text-sm font-semibold text-gray-600 uppercase mb-2">Độ ẩm KK</p>
+            <p class="text-4xl font-extrabold text-emerald-600"><span id="hum2">--</span>%</p>
+          </div>
+          <div class="value-card">
+            <p class="text-sm font-semibold text-gray-600 uppercase mb-2">Độ ẩm đất</p>
+            <p class="text-4xl font-extrabold text-amber-800"><span id="soil2">--</span>%</p>
+          </div>
+        </div>
+
+        <div class="px-6 pb-6">
+          <div class="chart-container">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-xl font-bold">Biểu đồ Realtime</h4>
+              <span class="text-xs font-semibold px-3 py-1 bg-blue-100 text-blue-800 rounded-full">Temp + Hum + Soil</span>
+            </div>
+            <div class="h-80"><canvas id="chartNode2"></canvas></div>
+            <div class="mt-4 text-center text-sm text-gray-600">
+              Cập nhật lần cuối: <span id="lastTime2" class="font-semibold">--:--:--</span>
+              <span id="lastDate2" class="font-semibold">--/--/----</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+<script>
+  // ================== CONFIG ==================
+  const REFRESH_MS = 2000;        // lấy data 2s/lần (có thể đổi thành 5000 nếu muốn)
+  const LABEL_EVERY_MS = 5000;    // ✅ nhãn thời gian chỉ hiện mỗi 5s
+  const LIMIT_POINTS = 160;
+
+  document.getElementById("refreshTxt").textContent = (REFRESH_MS/1000) + "s";
+
+  // demo ngưỡng (chỉ hiển thị)
+  const DEMO_LIMITS = { tmax: 35, hmin: 30, hmax: 95 };
+
+  let chart1, chart2;
+
+  // ================== UI helpers ==================
+  function setServerStatus(isOnline) {
+    const pill = document.getElementById("serverPill");
+    if (isOnline) {
+      pill.className = "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800";
+      pill.innerHTML = "● Online";
+    } else {
+      pill.className = "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-800";
+      pill.innerHTML = "● Offline";
+    }
+  }
+
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = (val == null || val === "") ? "--" : String(val);
+  }
+
+  function toNumOrNull(x) {
+    const n = Number(x);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  // ================== Chart helpers ==================
+  function labelStep() {
+    // data cập nhật REFRESH_MS, label muốn mỗi LABEL_EVERY_MS
+    return Math.max(1, Math.round(LABEL_EVERY_MS / REFRESH_MS));
+  }
+
+  function pickSeries(data) {
+    const step = labelStep();
+    const labels = data.map((x, idx) => {
+      if (idx % step !== 0) return "";   // ✅ thưa label
+      if (x.time) return x.time;
+      if (x.ts) return new Date(x.ts).toLocaleTimeString("vi-VN");
+      return "";
+    });
+
+    return {
+      labels,
+      temp: data.map(x => toNumOrNull(x.temp)),
+      hum:  data.map(x => toNumOrNull(x.hum)),
+      soil: data.map(x => toNumOrNull(x.soil)),
+    };
+  }
+
+  function buildChart(ctx) {
+    return new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          { label:"Nhiệt độ (°C)", data:[], borderColor:"#2563eb", pointBackgroundColor:"#2563eb", pointBorderColor:"#fff", pointBorderWidth:2, pointRadius:3, tension:0.25, borderWidth:2, fill:false },
+          { label:"Độ ẩm KK (%)",  data:[], borderColor:"#10b981", pointBackgroundColor:"#10b981", pointBorderColor:"#fff", pointBorderWidth:2, pointRadius:3, tension:0.25, borderWidth:2, fill:false },
+          { label:"Độ ẩm đất (%)", data:[], borderColor:"#8B4513", pointBackgroundColor:"#8B4513", pointBorderColor:"#fff", pointBorderWidth:2, pointRadius:3, tension:0.25, borderWidth:2, fill:false },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position:"top", labels:{ usePointStyle:true, boxWidth:10 } },
+          tooltip: { mode:"index", intersect:false }
+        },
+        scales: {
+          x: {
+            grid:{ display:false },
+            ticks:{
+              maxRotation:0,
+              minRotation:0,
+              maxTicksLimit: 12
+            }
+          },
+          y: { beginAtZero: true, grid:{ color:"#e5e7eb" } }
+        }
+      }
+    });
+  }
+
+  function updateCards(nodeId, latest) {
+    const p = String(nodeId);
+    if (!latest) return;
+    setText(`temp${p}`, latest.temp);
+    setText(`hum${p}`,  latest.hum);
+    setText(`soil${p}`, latest.soil);
+    setText(`lastTime${p}`, latest.time || "--:--:--");
+    setText(`lastDate${p}`, latest.date || "--/--/----");
+  }
+
+  function updateChart(chart, series) {
+    chart.data.labels = series.labels;
+    chart.data.datasets[0].data = series.temp;
+    chart.data.datasets[1].data = series.hum;
+    chart.data.datasets[2].data = series.soil;
+    chart.update("none");
+  }
+
+  async function fetchNodeData(nodeId) {
+    const res = await fetch(`/api/data?node=${nodeId}&limit=${LIMIT_POINTS}`, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  }
+
+  // ================== Demo alert status (CHỈ HIỂN THỊ) ==================
+  function computeAlertStatus(last1, last2) {
+    const msgs = [];
+    const { tmax, hmin, hmax } = DEMO_LIMITS;
+
+    function check(nodeId, last) {
+      if (!last) return;
+      const t = toNumOrNull(last.temp);
+      const h = toNumOrNull(last.hum);
+
+      if (t != null && t > tmax) msgs.push(`⚠️ Node ${nodeId}: Nhiệt độ cao (${t}°C > ${tmax}°C)`);
+      if (h != null && h < hmin) msgs.push(`⚠️ Node ${nodeId}: Độ ẩm KK thấp (${h}% < ${hmin}%)`);
+      if (h != null && h > hmax) msgs.push(`⚠️ Node ${nodeId}: Độ ẩm KK cao (${h}% > ${hmax}%)`);
+    }
+
+    check(1, last1);
+    check(2, last2);
+
+    const el = document.getElementById("alertStatus");
+    if (msgs.length === 0) {
+      el.className = "text-sm text-gray-600";
+      el.textContent = "Chưa phát hiện cảnh báo.";
+    } else {
+      el.className = "text-sm text-red-700 font-semibold";
+      el.innerHTML = msgs.map(m => `<div>${m}</div>`).join("");
+    }
+  }
+
+  // ================== Main update ==================
+  async function updateUI() {
+    try {
+      const [d1, d2] = await Promise.all([fetchNodeData(1), fetchNodeData(2)]);
+      const last1 = d1[d1.length - 1];
+      const last2 = d2[d2.length - 1];
+
+      updateCards(1, last1);
+      updateCards(2, last2);
+
+      updateChart(chart1, pickSeries(d1));
+      updateChart(chart2, pickSeries(d2));
+
+      // demo alert (chỉ hiển thị)
+      computeAlertStatus(last1, last2);
+
+      setServerStatus(true);
+    } catch (e) {
+      setServerStatus(false);
+    }
+  }
+
+  window.addEventListener("load", () => {
+    // set demo limits text
+    setText("tmax", DEMO_LIMITS.tmax);
+    setText("hmin", DEMO_LIMITS.hmin);
+    setText("hmax", DEMO_LIMITS.hmax);
+
+    chart1 = buildChart(document.getElementById("chartNode1").getContext("2d"));
+    chart2 = buildChart(document.getElementById("chartNode2").getContext("2d"));
+
+    setServerStatus(false);
+    updateUI();
+    setInterval(updateUI, REFRESH_MS);
+  });
+</script>
+</body>
+</html>
