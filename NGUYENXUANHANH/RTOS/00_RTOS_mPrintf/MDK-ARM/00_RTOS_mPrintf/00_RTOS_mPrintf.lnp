@@ -1,0 +1,25 @@
+--cpu Cortex-M3
+"00_rtos_mprintf\startup_stm32f103xb.o"
+"00_rtos_mprintf\main.o"
+"00_rtos_mprintf\stm32f1xx_it.o"
+"00_rtos_mprintf\stm32f1xx_hal_msp.o"
+"00_rtos_mprintf\stm32f1xx_hal_timebase_tim.o"
+"00_rtos_mprintf\stm32f1xx_hal_gpio_ex.o"
+"00_rtos_mprintf\stm32f1xx_hal_tim.o"
+"00_rtos_mprintf\stm32f1xx_hal_tim_ex.o"
+"00_rtos_mprintf\stm32f1xx_hal_uart.o"
+"00_rtos_mprintf\stm32f1xx_hal.o"
+"00_rtos_mprintf\stm32f1xx_hal_rcc.o"
+"00_rtos_mprintf\stm32f1xx_hal_rcc_ex.o"
+"00_rtos_mprintf\stm32f1xx_hal_gpio.o"
+"00_rtos_mprintf\stm32f1xx_hal_dma.o"
+"00_rtos_mprintf\stm32f1xx_hal_cortex.o"
+"00_rtos_mprintf\stm32f1xx_hal_pwr.o"
+"00_rtos_mprintf\stm32f1xx_hal_flash.o"
+"00_rtos_mprintf\stm32f1xx_hal_flash_ex.o"
+"00_rtos_mprintf\stm32f1xx_hal_exti.o"
+"00_rtos_mprintf\system_stm32f1xx.o"
+--strict --scatter "00_RTOS_mPrintf\00_RTOS_mPrintf.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "00_RTOS_mPrintf.map" -o 00_RTOS_mPrintf\00_RTOS_mPrintf.axf
