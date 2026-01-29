@@ -1,0 +1,2 @@
+../Core/Src/SMS_Sensors.c:7:12:read_SMS_V1	40	static
+../Core/Src/SMS_Sensors.c:46:6:send_SMS_V1	16	static

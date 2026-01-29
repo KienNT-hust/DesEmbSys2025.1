@@ -1,0 +1,9 @@
+../Core/Src/DS18B20_sensors.c:13:6:delay_us	2
+../Core/Src/DS18B20_sensors.c:20:9:DS18B20_Reset	3
+../Core/Src/DS18B20_sensors.c:35:6:DS18B20_WriteBit	2
+../Core/Src/DS18B20_sensors.c:48:9:DS18B20_ReadBit	2
+../Core/Src/DS18B20_sensors.c:59:6:DS18B20_WriteByte	2
+../Core/Src/DS18B20_sensors.c:65:9:DS18B20_ReadByte	3
+../Core/Src/DS18B20_sensors.c:75:9:DS18B20_Init	1
+../Core/Src/DS18B20_sensors.c:81:6:DS18B20_StartMeasure	2
+../Core/Src/DS18B20_sensors.c:89:7:DS18B20_GetTempResult	2
